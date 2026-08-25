@@ -1,5 +1,5 @@
 spring:
   application:
     name: kontrolBankData
-vaadin:
-  launch-browser: true
+  thymeleaf:
+    cache: false

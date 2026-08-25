@@ -1,0 +1,58 @@
+﻿* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+
+header {
+    padding: 24px 40px;
+    background: #ffffff;
+    border-bottom: 1px solid #dedede;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+main {
+    padding: 40px;
+}
+
+.journal-menu {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.journal-card {
+    width: 300px;
+    padding: 24px;
+
+    background: white;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+
+    color: inherit;
+    text-decoration: none;
+
+    transition: 0.15s;
+}
+
+.journal-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgb(202 202 202 / 0.82);
+}
+
+.journal-card h2 {
+    margin-top: 0;
+}
+
+.journal-card p {
+    margin-bottom: 0;
+}
