@@ -2,57 +2,59 @@
     box-sizing: border-box;
 }
 
-body {
+.page {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f6f8;
     color: #222;
 }
 
-header {
+.page-title,
+.card-title,
+.card-description {
+    margin: 0;
+}
+
+.page-header {
     padding: 24px 40px;
     background: #ffffff;
     border-bottom: 1px solid #dedede;
 }
 
-header h1 {
-    margin: 0;
+.page-title {
     font-size: 28px;
 }
 
-main {
+.main-content {
     padding: 40px;
 }
 
-.journal-menu {
+.cards-grid {
     display: flex;
-    gap: 20px;
     flex-wrap: wrap;
+    gap: 20px;
 }
 
-.journal-card {
+.menu-card {
     width: 300px;
     padding: 24px;
-
-    background: white;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
-
     color: inherit;
     text-decoration: none;
-
+    background: #ffffff;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
     transition: 0.15s;
 }
 
-.journal-card:hover {
+.menu-card:hover {
     transform: translateY(-1px);
     box-shadow: 0 3px 6px rgb(202 202 202 / 0.82);
 }
 
-.journal-card h2 {
-    margin-top: 0;
+.card-title {
+    font-size: 20px;
 }
 
-.journal-card p {
-    margin-bottom: 0;
+.card-description {
+    margin-top: 12px;
 }

@@ -10,4 +10,19 @@ public class HomeController {
     public String index() {
         return "index";
     }
+
+    @GetMapping("/sedrecall")
+    public String SEDRecall() {
+        return "SEDRecall";
+    }
+
+    @GetMapping("/bankrecall")
+    public String BankRecall() {
+        return "BankRecall";
+    }
+
+    @GetMapping("/manualwork")
+    public String ManualWork() {
+        return "/manualwork";
+    }
 }
