@@ -45,8 +45,7 @@ public class ManualWorkController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd) {
 
         manualWork.setPeriod(formatPeriod(periodStart, periodEnd));
-        manualWorkService.create(manualWork);
-        return "redirect:/manualwork";
+        return save(manualWork);
     }
 
     @PostMapping("/update/{id}")
@@ -58,7 +57,11 @@ public class ManualWorkController {
 
         manualWork.setId(id);
         manualWork.setPeriod(formatPeriod(periodStart, periodEnd));
-        manualWorkService.create(manualWork);
+        return save(manualWork);
+    }
+
+    private String save(ManualWork manualWork) {
+        manualWorkService.save(manualWork);
         return "redirect:/manualwork";
     }
 

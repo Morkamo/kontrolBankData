@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "vozv_bank")
@@ -28,7 +29,7 @@ public class BankRecall {
     @Column(name = "\"FIO_Recipient\"", length = 200)
     private String pensionerName;
 
-    @Column(name = "\"NameBank\"", length = 255)
+    @Column(name = "\"NameBank\"")
     private String bank;
 
     @Column(name = "\"Type_Vozv\"", length = 30)
@@ -43,13 +44,13 @@ public class BankRecall {
     @Column(name = "\"Year\"")
     private Integer year;
 
-    @Column(name = "\"Prichina\"", length = 255)
+    @Column(name = "\"Prichina\"")
     private String reason;
 
     @Column(name = "\"Data_death\"", length = 100)
     private String deathDate;
 
-    @Column(name = "\"Period\"", length = 255)
+    @Column(name = "\"Period\"")
     private String period;
 
     @Column(name = "\"Srochnost\"", length = 4)
@@ -61,24 +62,25 @@ public class BankRecall {
     @Column(name = "\"Amount_vozv\"", length = 15)
     private String recallAmount;
 
-    @Column(name = "\"FIO_SP_ONiVB\"", length = 255)
+    @Column(name = "\"FIO_SP_ONiVB\"")
     private String ovpSpecialist;
 
     @Column(name = "\"Area\"")
     private Integer district;
 
-    @Column(name = "\"Primechanie_ONiVBD\"", length = 255)
+    @Column(name = "\"Primechanie_ONiVBD\"")
     private String note;
 
     @Column(name = "\"Check_finish\"", length = 20)
     private String executionMark;
 
-    @Column(name = "\"FIO_SP_OVVBD\"", length = 255)
+    @Column(name = "\"FIO_SP_OVVBD\"")
     private String ovidSpecialist;
 
-    @Column(name = "\"Primechanie_OVVBD\"", length = 255)
+    @Column(name = "\"Primechanie_OVVBD\"")
     private String ovidNote;
 
     @Column(name = "\"AgreementVozv\"")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate agreementDate;
 }

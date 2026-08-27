@@ -36,14 +36,17 @@ public class SedRecallController {
 
     @PostMapping("/create")
     public String create(SedRecall sedRecall) {
-        sedRecallService.create(sedRecall);
-        return "redirect:/sedrecall";
+        return save(sedRecall);
     }
 
     @PostMapping("/update/{id}")
     public String update(@PathVariable Integer id, SedRecall sedRecall) {
         sedRecall.setId(id);
-        sedRecallService.create(sedRecall);
+        return save(sedRecall);
+    }
+
+    private String save(SedRecall sedRecall) {
+        sedRecallService.save(sedRecall);
         return "redirect:/sedrecall";
     }
 

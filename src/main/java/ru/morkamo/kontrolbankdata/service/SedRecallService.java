@@ -14,11 +14,12 @@ public class SedRecallService {
     private final SedRecallRepository sedRecallRepository;
 
     public List<SedRecall> search(String pensionCaseNumber, String pensionerName, Integer month, Integer year) {
-        return sedRecallRepository.search(pensionCaseNumber, pensionerName, month, year);
+        return sedRecallRepository
+                .search(pensionCaseNumber, pensionerName, month, year);
     }
 
-    public SedRecall create(SedRecall sedRecall) {
-        return sedRecallRepository.save(sedRecall);
+    public void save(SedRecall sedRecall) {
+        sedRecallRepository.save(sedRecall);
     }
 
     public void delete(Integer id) {

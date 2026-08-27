@@ -15,6 +15,7 @@ public class DeliveryOrganizationService {
     private final DeliveryOrganizationRepository deliveryOrganizationRepository;
 
     public List<DeliveryOrganization> getAll() {
-        return deliveryOrganizationRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+        return deliveryOrganizationRepository
+                .findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
 }

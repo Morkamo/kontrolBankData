@@ -14,11 +14,12 @@ public class ManualWorkService {
     private final ManualWorkRepository manualWorkRepository;
 
     public List<ManualWork> search(String pensionCaseNumber, String pensionerName, String period) {
-        return manualWorkRepository.search(pensionCaseNumber, pensionerName, period);
+        return manualWorkRepository
+                .search(pensionCaseNumber, pensionerName, period);
     }
 
-    public ManualWork create(ManualWork manualWork) {
-        return manualWorkRepository.save(manualWork);
+    public void save(ManualWork manualWork) {
+        manualWorkRepository.save(manualWork);
     }
 
     public void delete(Integer id) {

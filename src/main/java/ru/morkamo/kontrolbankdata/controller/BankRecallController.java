@@ -59,116 +59,28 @@ public class BankRecallController {
 
     @PostMapping("/create")
     public String create(
-            @RequestParam String pensionCaseNumber,
-            @RequestParam String pensionerName,
-            @RequestParam String bank,
-            @RequestParam Integer district,
-            @RequestParam String urgent,
-            @RequestParam String recallType,
-            @RequestParam String reason,
-            @RequestParam(required = false) String deathDate,
-            @RequestParam String packageNumber,
-            @RequestParam Integer month,
-            @RequestParam Integer year,
+            BankRecall bankRecall,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
-            @RequestParam(required = false) String paymentType,
-            @RequestParam(required = false) String recallAmount,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate agreementDate,
-            @RequestParam(required = false) String ovpSpecialist,
-            @RequestParam(required = false) String executionMark,
-            @RequestParam(required = false) String ovidSpecialist,
-            @RequestParam(required = false) String ovidNote,
-            @RequestParam(required = false) String note) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd) {
 
-        BankRecall bankRecall = new BankRecall();
-        fillBankRecall(bankRecall, pensionCaseNumber, pensionerName, bank, district, urgent, recallType, reason,
-                deathDate, packageNumber, month, year, periodStart, periodEnd, paymentType, recallAmount,
-                agreementDate, ovpSpecialist, executionMark, ovidSpecialist, ovidNote, note);
-
-        bankRecallService.create(bankRecall);
-        return "redirect:/bankrecall";
+        return save(bankRecall, periodStart, periodEnd);
     }
 
     @PostMapping("/update/{id}")
     public String update(
             @PathVariable Integer id,
-            @RequestParam String pensionCaseNumber,
-            @RequestParam String pensionerName,
-            @RequestParam String bank,
-            @RequestParam Integer district,
-            @RequestParam String urgent,
-            @RequestParam String recallType,
-            @RequestParam String reason,
-            @RequestParam(required = false) String deathDate,
-            @RequestParam String packageNumber,
-            @RequestParam Integer month,
-            @RequestParam Integer year,
+            BankRecall bankRecall,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd,
-            @RequestParam(required = false) String paymentType,
-            @RequestParam(required = false) String recallAmount,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate agreementDate,
-            @RequestParam(required = false) String ovpSpecialist,
-            @RequestParam(required = false) String executionMark,
-            @RequestParam(required = false) String ovidSpecialist,
-            @RequestParam(required = false) String ovidNote,
-            @RequestParam(required = false) String note) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd) {
 
-        BankRecall bankRecall = new BankRecall();
         bankRecall.setId(id);
-        fillBankRecall(bankRecall, pensionCaseNumber, pensionerName, bank, district, urgent, recallType, reason,
-                deathDate, packageNumber, month, year, periodStart, periodEnd, paymentType, recallAmount,
-                agreementDate, ovpSpecialist, executionMark, ovidSpecialist, ovidNote, note);
-
-        bankRecallService.create(bankRecall);
-        return "redirect:/bankrecall";
+        return save(bankRecall, periodStart, periodEnd);
     }
 
-    private void fillBankRecall(
-            BankRecall bankRecall,
-            String pensionCaseNumber,
-            String pensionerName,
-            String bank,
-            Integer district,
-            String urgent,
-            String recallType,
-            String reason,
-            String deathDate,
-            String packageNumber,
-            Integer month,
-            Integer year,
-            LocalDate periodStart,
-            LocalDate periodEnd,
-            String paymentType,
-            String recallAmount,
-            LocalDate agreementDate,
-            String ovpSpecialist,
-            String executionMark,
-            String ovidSpecialist,
-            String ovidNote,
-            String note) {
-
-        bankRecall.setPensionCaseNumber(pensionCaseNumber);
-        bankRecall.setPensionerName(pensionerName);
-        bankRecall.setBank(bank);
-        bankRecall.setDistrict(district);
-        bankRecall.setUrgent(urgent);
-        bankRecall.setRecallType(recallType);
-        bankRecall.setReason(reason);
-        bankRecall.setDeathDate(deathDate);
-        bankRecall.setPackageNumber(packageNumber);
-        bankRecall.setMonth(month);
-        bankRecall.setYear(year);
+    private String save(BankRecall bankRecall, LocalDate periodStart, LocalDate periodEnd) {
         bankRecall.setPeriod(formatPeriod(periodStart, periodEnd));
-        bankRecall.setPaymentType(paymentType);
-        bankRecall.setRecallAmount(recallAmount);
-        bankRecall.setAgreementDate(agreementDate);
-        bankRecall.setOvpSpecialist(ovpSpecialist);
-        bankRecall.setExecutionMark(executionMark);
-        bankRecall.setOvidSpecialist(ovidSpecialist);
-        bankRecall.setOvidNote(ovidNote);
-        bankRecall.setNote(note);
+        bankRecallService.save(bankRecall);
+        return "redirect:/bankrecall";
     }
 
     @PostMapping("/delete/{id}")
