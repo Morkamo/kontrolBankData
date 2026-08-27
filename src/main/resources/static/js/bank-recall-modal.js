@@ -95,7 +95,7 @@ numericInputs.forEach((input) => {
 
 nameInputs.forEach((input) => {
     input.addEventListener('input', () => {
-        input.value = input.value.replace(/[^А-Яа-яЁё\s-]/g, '');
+        input.value = input.value.replace(/[^A-Za-zА-Яа-яЁё\s'-]/g, '');
     });
 });
 
