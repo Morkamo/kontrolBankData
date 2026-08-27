@@ -1,5 +1,18 @@
 spring:
   application:
     name: kontrolBankData
+
   thymeleaf:
     cache: false
+
+  config:
+    import: optional:file:./config/database.yaml
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true

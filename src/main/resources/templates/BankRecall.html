@@ -1,19 +1,306 @@
 ﻿<!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Отзыв в банк</title>
+    <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/bank-recall-modal.js" defer></script>
 </head>
 <body class="page">
 <header class="page-header">
-    <h1 class="page-title">Отзыв в банк</h1>
+    <h1 class="page-title">Контроль банковских данных</h1>
+    <nav class="section-nav">
+        <a class="section-button section-button-active" href="/bankrecall">Отзыв в банк</a>
+        <a class="section-button" href="/sedrecall">Отзывы в СЭД</a>
+        <a class="section-button" href="/manualwork">Ручной режим</a>
+    </nav>
 </header>
 
 <main class="main-content">
-    <section class="cards-grid">
-<!--        -->
+    <section class="table-area bank-recall-table-area"
+             th:classappend="${#lists.isEmpty(records)} ? ' table-area-empty'">
+        <p class="table-placeholder" th:if="${#lists.isEmpty(records)}">Нет данных</p>
+
+        <table class="data-table" th:if="${not #lists.isEmpty(records)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>№ П/Д</th>
+                <th>ФИО</th>
+                <th>Банк</th>
+                <th>Вид отзыва</th>
+                <th>Номер пакета</th>
+                <th>Месяц</th>
+                <th>Год</th>
+                <th>Причина</th>
+                <th>Период</th>
+                <th>Срочность</th>
+                <th>Район</th>
+                <th>Примечание</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record : ${records}">
+                <td th:text="${record.id}"></td>
+                <td th:text="${record.pensionCaseNumber}"></td>
+                <td th:text="${record.pensionerName}"></td>
+                <td th:text="${record.bank}"></td>
+                <td th:text="${record.recallType}"></td>
+                <td th:text="${record.packageNumber}"></td>
+                <td th:text="${record.month}"></td>
+                <td th:text="${record.year}"></td>
+                <td th:text="${record.reason}"></td>
+                <td th:text="${record.period}"></td>
+                <td th:text="${record.urgent}"></td>
+                <td th:text="${record.district}"></td>
+                <td th:text="${record.note}"></td>
+                <td>
+                    <form class="row-form delete-record-form"
+                          th:action="@{/bankrecall/delete/{id}(id=${record.id})}"
+                          data-confirm-message="Удалить эту запись?"
+                          method="post">
+                        <button class="button" type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </section>
 </main>
+
+<footer class="control-panel">
+    <form class="filter-group" id="bankRecallSearch" method="get" action="/bankrecall">
+        <label class="field">
+            Месяц
+            <select class="field-input" name="month">
+                <option value="">Все месяцы</option>
+                <option value="1" th:selected="${selectedMonth == 1}">Январь</option>
+                <option value="2" th:selected="${selectedMonth == 2}">Февраль</option>
+                <option value="3" th:selected="${selectedMonth == 3}">Март</option>
+                <option value="4" th:selected="${selectedMonth == 4}">Апрель</option>
+                <option value="5" th:selected="${selectedMonth == 5}">Май</option>
+                <option value="6" th:selected="${selectedMonth == 6}">Июнь</option>
+                <option value="7" th:selected="${selectedMonth == 7}">Июль</option>
+                <option value="8" th:selected="${selectedMonth == 8}">Август</option>
+                <option value="9" th:selected="${selectedMonth == 9}">Сентябрь</option>
+                <option value="10" th:selected="${selectedMonth == 10}">Октябрь</option>
+                <option value="11" th:selected="${selectedMonth == 11}">Ноябрь</option>
+                <option value="12" th:selected="${selectedMonth == 12}">Декабрь</option>
+            </select>
+        </label>
+
+        <label class="field">
+            Год
+            <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" th:value="${selectedYear}">
+        </label>
+
+        <label class="field">
+            Номер П/Д
+            <input class="field-input" type="text" name="pensionCaseNumber" maxlength="7" th:value="${pensionCaseNumber}">
+        </label>
+
+        <label class="field field-wide">
+            ФИО
+            <input class="field-input" type="text" name="pensionerName" maxlength="200" th:value="${pensionerName}">
+        </label>
+
+        <label class="field field-wide">
+            Банк
+            <select class="field-input" name="bank">
+                <option value="">Все банки</option>
+                <option th:each="bank : ${banks}"
+                        th:value="${bank.name}"
+                        th:text="${bank.name}"
+                        th:selected="${bank.name == selectedBank}">
+                </option>
+            </select>
+        </label>
+
+        <fieldset class="field period-search-fieldset">
+            <legend>Период</legend>
+            <label class="period-inline-label">
+                С
+                <input class="field-input"
+                       type="date"
+                       name="periodStart"
+                       th:value="${selectedPeriodStart}">
+            </label>
+            <label class="period-inline-label">
+                ПО
+                <input class="field-input"
+                       type="date"
+                       name="periodEnd"
+                       th:value="${selectedPeriodEnd}">
+            </label>
+        </fieldset>
+    </form>
+
+    <div class="action-group">
+        <button class="button" type="submit" form="bankRecallSearch">Найти</button>
+        <a class="button" href="/bankrecall">Сбросить</a>
+        <a class="button" href="/bankrecall">Обновить</a>
+        <button class="button button-primary" id="openBankRecallModal" type="button">Новая запись</button>
+    </div>
+</footer>
+
+<div class="modal" id="bankRecallModal">
+    <div class="modal-content">
+        <h2 class="modal-title">Новая запись</h2>
+
+        <form class="modal-form" id="bankRecallForm" action="/bankrecall/create" method="post">
+            <label class="form-field">
+                Номер пенсионного дела
+                <input class="field-input"
+                       type="text"
+                       name="pensionCaseNumber"
+                       inputmode="numeric"
+                       pattern="[0-9]{7}"
+                       maxlength="7"
+                       title="Введите 7 цифр"
+                       required>
+            </label>
+
+            <label class="form-field">
+                ФИО пенсионера
+                <input class="field-input"
+                       type="text"
+                       name="pensionerName"
+                       pattern="[А-Яа-яЁё\s-]{2,200}"
+                       maxlength="200"
+                       title="Введите ФИО буквами, можно использовать пробелы и дефисы"
+                       required>
+            </label>
+
+            <label class="form-field">
+                Наименование банка
+                <select class="field-input" name="bank" required>
+                    <option value="" selected disabled>Выберите банк</option>
+                    <option th:each="bank : ${banks}"
+                            th:value="${bank.name}"
+                            th:text="${bank.name}">
+                    </option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Район
+                <select class="field-input" name="district" required>
+                    <option value="">Выберите район</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                    <option value="17">17</option>
+                    <option value="18">18</option>
+                    <option value="19">19</option>
+                    <option value="20">20</option>
+                    <option value="21">21</option>
+                    <option value="22">22</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Срочность оформления
+                <select class="field-input" name="urgent" required>
+                    <option value="" selected disabled>Выберите срочность</option>
+                    <option>Да</option>
+                    <option>Нет</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Вид отзыва
+                <select class="field-input" name="recallType" required>
+                    <option value="" selected disabled>Выберите вид отзыва</option>
+                    <option>Полный</option>
+                    <option>Частичный</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Причина
+                <select class="field-input" name="reason" required>
+                    <option value="" selected disabled>Выберите причину</option>
+                    <option>Умер</option>
+                    <option>Выбыл</option>
+                    <option>Утрата права</option>
+                    <option>Смена доставочной организации</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Номер пакета
+                <input class="field-input"
+                       type="text"
+                       name="packageNumber"
+                       inputmode="numeric"
+                       pattern="[0-9]{1,10}"
+                       maxlength="10"
+                       title="Введите до 10 цифр"
+                       required>
+            </label>
+
+            <label class="form-field">
+                Месяц
+                <select class="field-input" name="month" required>
+                    <option value="">Выберите месяц</option>
+                    <option value="1">Январь</option>
+                    <option value="2">Февраль</option>
+                    <option value="3">Март</option>
+                    <option value="4">Апрель</option>
+                    <option value="5">Май</option>
+                    <option value="6">Июнь</option>
+                    <option value="7">Июль</option>
+                    <option value="8">Август</option>
+                    <option value="9">Сентябрь</option>
+                    <option value="10">Октябрь</option>
+                    <option value="11">Ноябрь</option>
+                    <option value="12">Декабрь</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Год
+                <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" required>
+            </label>
+
+            <fieldset class="form-field form-field-wide period-fieldset">
+                <legend>Период</legend>
+                <label class="period-inline-label">
+                    С
+                    <input class="field-input" type="date" name="periodStart" required>
+                </label>
+                <label class="period-inline-label">
+                    ПО
+                    <input class="field-input" type="date" name="periodEnd" required>
+                </label>
+                <input type="hidden" name="period">
+            </fieldset>
+
+            <label class="form-field form-field-wide">
+                Примечание
+                <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
+            </label>
+        </form>
+
+        <div class="modal-actions">
+            <button class="button button-primary" type="submit" form="bankRecallForm">Добавить</button>
+            <button class="button" id="cancelBankRecallModal" type="button">Отмена</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

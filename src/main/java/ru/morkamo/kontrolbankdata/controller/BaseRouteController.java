@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
-public class HomeController {
+public class BaseRouteController {
 
     @GetMapping("/")
     public String index() {
@@ -16,13 +16,8 @@ public class HomeController {
         return "SEDRecall";
     }
 
-    @GetMapping("/bankrecall")
-    public String BankRecall() {
-        return "BankRecall";
-    }
-
     @GetMapping("/manualwork")
     public String ManualWork() {
-        return "/manualwork";
+        return "ManualWork";
     }
 }

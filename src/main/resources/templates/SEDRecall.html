@@ -1,19 +1,44 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Отзыв в СЭД</title>
+    <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body class="page">
 <header class="page-header">
-    <h1 class="page-title">Отзыв в СЭД</h1>
+    <h1 class="page-title">Контроль банковских данных</h1>
+    <nav class="section-nav">
+        <a class="section-button" href="/bankrecall">Отзыв в банк</a>
+        <a class="section-button section-button-active" href="/sedrecall">Отзывы в СЭД</a>
+        <a class="section-button" href="/manualwork">Ручной режим</a>
+    </nav>
 </header>
 
 <main class="main-content">
-    <section class="cards-grid">
-<!--        -->
+    <section class="table-area">
+        <p class="table-placeholder">Нет данных</p>
     </section>
 </main>
+
+<footer class="control-panel">
+    <div class="filter-group">
+        <label class="field">
+            Месяц
+            <select class="field-input">
+                <option>Все месяцы</option>
+            </select>
+        </label>
+
+        <label class="field">
+            Год
+            <input class="field-input" type="number" min="1900" max="2100" step="1">
+        </label>
+    </div>
+
+    <div class="action-group">
+        <a class="button" href="/sedrecall">Обновить</a>
+    </div>
+</footer>
 </body>
 </html>
