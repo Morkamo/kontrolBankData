@@ -8,6 +8,7 @@ const numericInputs = document.querySelectorAll('input[data-numeric]');
 const nameInputs = document.querySelectorAll('input[data-person-name]');
 const amountInputs = document.querySelectorAll('input[data-amount]');
 const periodFieldsets = document.querySelectorAll('.period-fieldset, .period-search-fieldset');
+let modalClickStartedOutside = false;
 
 function closeModal() {
     modal?.classList.remove('modal-open');
@@ -66,10 +67,16 @@ openModalButtons.forEach((button) => {
 
 cancelModalButton?.addEventListener('click', closeModal);
 
+modal?.addEventListener('mousedown', (event) => {
+    modalClickStartedOutside = event.target === modal;
+});
+
 modal?.addEventListener('click', (event) => {
-    if (event.target === modal) {
+    if (modalClickStartedOutside && event.target === modal) {
         closeModal();
     }
+
+    modalClickStartedOutside = false;
 });
 
 deleteRecordForms.forEach((form) => {
