@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/bank-recall-modal.js" defer></script>
 </head>
 <body class="page">
 <header class="page-header">
@@ -16,29 +17,187 @@
 </header>
 
 <main class="main-content">
-    <section class="table-area">
-        <p class="table-placeholder">Нет данных</p>
+    <section class="table-area journal-table-area" th:classappend="${#lists.isEmpty(records)} ? ' table-area-empty'">
+        <p class="table-placeholder" th:if="${#lists.isEmpty(records)}">Нет данных</p>
+
+        <table class="data-table" th:if="${not #lists.isEmpty(records)}">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>№ П/Д</th>
+                <th>ФИО</th>
+                <th>Номер пакета</th>
+                <th>Месяц</th>
+                <th>Год</th>
+                <th>Причина</th>
+                <th>Срочность</th>
+                <th>Район</th>
+                <th>ФИО специалиста ОВПиСВ</th>
+                <th>Примечание специалиста</th>
+                <th>Отметка об исполнении</th>
+                <th>ФИО специалиста ОВИДиСР</th>
+                <th>Примечание специалиста ОВИДиСР</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="record : ${records}">
+                <td th:text="${record.id}"></td>
+                <td th:text="${record.pensionCaseNumber}"></td>
+                <td th:text="${record.pensionerName}"></td>
+                <td th:text="${record.packageNumber}"></td>
+                <td th:text="${record.month}"></td>
+                <td th:text="${record.year}"></td>
+                <td th:text="${record.reason}"></td>
+                <td th:text="${record.urgent}"></td>
+                <td th:text="${record.district}"></td>
+                <td th:text="${record.ovpSpecialist}"></td>
+                <td th:text="${record.note}"></td>
+                <td th:text="${record.executionMark}"></td>
+                <td th:text="${record.ovidSpecialist}"></td>
+                <td th:text="${record.ovidNote}"></td>
+                <td>
+                    <form class="row-form delete-record-form"
+                          th:action="@{/sedrecall/delete/{id}(id=${record.id})}"
+                          data-confirm-message="Удалить эту запись?"
+                          method="post">
+                        <button class="button" type="submit">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </section>
 </main>
 
 <footer class="control-panel">
-    <div class="filter-group">
+    <form class="filter-group" id="sedRecallSearch" method="get" action="/sedrecall">
         <label class="field">
             Месяц
-            <select class="field-input">
-                <option>Все месяцы</option>
+            <select class="field-input" name="month">
+                <option value="">Все месяцы</option>
+                <option value="1" th:selected="${selectedMonth == 1}">Январь</option>
+                <option value="2" th:selected="${selectedMonth == 2}">Февраль</option>
+                <option value="3" th:selected="${selectedMonth == 3}">Март</option>
+                <option value="4" th:selected="${selectedMonth == 4}">Апрель</option>
+                <option value="5" th:selected="${selectedMonth == 5}">Май</option>
+                <option value="6" th:selected="${selectedMonth == 6}">Июнь</option>
+                <option value="7" th:selected="${selectedMonth == 7}">Июль</option>
+                <option value="8" th:selected="${selectedMonth == 8}">Август</option>
+                <option value="9" th:selected="${selectedMonth == 9}">Сентябрь</option>
+                <option value="10" th:selected="${selectedMonth == 10}">Октябрь</option>
+                <option value="11" th:selected="${selectedMonth == 11}">Ноябрь</option>
+                <option value="12" th:selected="${selectedMonth == 12}">Декабрь</option>
             </select>
         </label>
 
         <label class="field">
             Год
-            <input class="field-input" type="number" min="1900" max="2100" step="1">
+            <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" th:value="${selectedYear}">
         </label>
-    </div>
+
+        <label class="field">
+            Номер П/Д
+            <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" maxlength="7" th:value="${pensionCaseNumber}">
+        </label>
+
+        <label class="field field-wide">
+            ФИО
+            <input class="field-input" type="text" name="pensionerName" data-person-name maxlength="255" th:value="${pensionerName}">
+        </label>
+    </form>
 
     <div class="action-group">
+        <button class="button" type="submit" form="sedRecallSearch">Найти</button>
+        <a class="button" href="/sedrecall">Сбросить</a>
         <a class="button" href="/sedrecall">Обновить</a>
+        <button class="button button-primary" type="button" data-open-modal>Новая запись</button>
     </div>
 </footer>
+
+<div class="modal">
+    <div class="modal-content">
+        <h2 class="modal-title">Новая запись</h2>
+
+        <form class="modal-form" id="sedRecallForm" action="/sedrecall/create" method="post">
+            <label class="form-field">
+                Номер пенсионного дела
+                <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" pattern="[0-9]{7}" maxlength="7" required>
+            </label>
+
+            <label class="form-field">
+                ФИО пенсионера
+                <input class="field-input" type="text" name="pensionerName" data-person-name pattern="[А-Яа-яЁё][А-Яа-яЁё\s-]{1,254}" maxlength="255" required>
+            </label>
+
+            <label class="form-field">
+                Район
+                <select class="field-input" name="district" required>
+                    <option value="">Выберите район</option>
+                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Срочность оформления
+                <select class="field-input" name="urgent" required>
+                    <option value="">Выберите срочность</option>
+                    <option>Да</option>
+                    <option>Нет</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Причина
+                <select class="field-input" name="reason" required>
+                    <option value="">Выберите причину</option>
+                    <option>Умер</option>
+                    <option>Выбыл</option>
+                    <option>Утрата права</option>
+                    <option>Смена доставочной организации</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Номер пакета
+                <input class="field-input" type="text" name="packageNumber" data-numeric inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required>
+            </label>
+
+            <label class="form-field">
+                Месяц
+                <select class="field-input" name="month" required>
+                    <option value="">Выберите месяц</option>
+                    <option value="1">Январь</option>
+                    <option value="2">Февраль</option>
+                    <option value="3">Март</option>
+                    <option value="4">Апрель</option>
+                    <option value="5">Май</option>
+                    <option value="6">Июнь</option>
+                    <option value="7">Июль</option>
+                    <option value="8">Август</option>
+                    <option value="9">Сентябрь</option>
+                    <option value="10">Октябрь</option>
+                    <option value="11">Ноябрь</option>
+                    <option value="12">Декабрь</option>
+                </select>
+            </label>
+
+            <label class="form-field">
+                Год
+                <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" required>
+            </label>
+
+            <label class="form-field form-field-wide">
+                Примечание
+                <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
+            </label>
+        </form>
+
+        <div class="modal-actions">
+            <button class="button button-primary" type="submit" form="sedRecallForm">Добавить</button>
+            <button class="button" type="button" data-close-modal>Отмена</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

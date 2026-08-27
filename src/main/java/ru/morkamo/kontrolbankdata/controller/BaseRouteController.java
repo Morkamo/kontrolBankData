@@ -10,14 +10,4 @@ public class BaseRouteController {
     public String index() {
         return "index";
     }
-
-    @GetMapping("/sedrecall")
-    public String SEDRecall() {
-        return "SEDRecall";
-    }
-
-    @GetMapping("/manualwork")
-    public String ManualWork() {
-        return "ManualWork";
-    }
 }

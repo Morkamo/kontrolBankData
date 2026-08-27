@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <title>Контроль банковских данных</title>
@@ -97,12 +97,12 @@
 
         <label class="field">
             Номер П/Д
-            <input class="field-input" type="text" name="pensionCaseNumber" maxlength="7" th:value="${pensionCaseNumber}">
+            <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" maxlength="7" th:value="${pensionCaseNumber}">
         </label>
 
         <label class="field field-wide">
             ФИО
-            <input class="field-input" type="text" name="pensionerName" maxlength="200" th:value="${pensionerName}">
+            <input class="field-input" type="text" name="pensionerName" data-person-name maxlength="200" th:value="${pensionerName}">
         </label>
 
         <label class="field field-wide">
@@ -140,11 +140,11 @@
         <button class="button" type="submit" form="bankRecallSearch">Найти</button>
         <a class="button" href="/bankrecall">Сбросить</a>
         <a class="button" href="/bankrecall">Обновить</a>
-        <button class="button button-primary" id="openBankRecallModal" type="button">Новая запись</button>
+        <button class="button button-primary" type="button" data-open-modal>Новая запись</button>
     </div>
 </footer>
 
-<div class="modal" id="bankRecallModal">
+<div class="modal">
     <div class="modal-content">
         <h2 class="modal-title">Новая запись</h2>
 
@@ -154,6 +154,7 @@
                 <input class="field-input"
                        type="text"
                        name="pensionCaseNumber"
+                       data-numeric
                        inputmode="numeric"
                        pattern="[0-9]{7}"
                        maxlength="7"
@@ -166,7 +167,8 @@
                 <input class="field-input"
                        type="text"
                        name="pensionerName"
-                       pattern="[А-Яа-яЁё\s-]{2,200}"
+                       data-person-name
+                       pattern="[А-Яа-яЁё][А-Яа-яЁё\s-]{1,199}"
                        maxlength="200"
                        title="Введите ФИО буквами, можно использовать пробелы и дефисы"
                        required>
@@ -187,28 +189,7 @@
                 Район
                 <select class="field-input" name="district" required>
                     <option value="">Выберите район</option>
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <option value="9">9</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="13">13</option>
-                    <option value="14">14</option>
-                    <option value="15">15</option>
-                    <option value="16">16</option>
-                    <option value="17">17</option>
-                    <option value="18">18</option>
-                    <option value="19">19</option>
-                    <option value="20">20</option>
-                    <option value="21">21</option>
-                    <option value="22">22</option>
+                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
                 </select>
             </label>
 
@@ -246,6 +227,7 @@
                 <input class="field-input"
                        type="text"
                        name="packageNumber"
+                       data-numeric
                        inputmode="numeric"
                        pattern="[0-9]{1,10}"
                        maxlength="10"
@@ -287,7 +269,6 @@
                     ПО
                     <input class="field-input" type="date" name="periodEnd" required>
                 </label>
-                <input type="hidden" name="period">
             </fieldset>
 
             <label class="form-field form-field-wide">
@@ -298,7 +279,7 @@
 
         <div class="modal-actions">
             <button class="button button-primary" type="submit" form="bankRecallForm">Добавить</button>
-            <button class="button" id="cancelBankRecallModal" type="button">Отмена</button>
+            <button class="button" type="button" data-close-modal>Отмена</button>
         </div>
     </div>
 </div>

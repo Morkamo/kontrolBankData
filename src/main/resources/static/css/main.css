@@ -71,12 +71,14 @@
     color: #6b7280;
 }
 
-.bank-recall-table-area {
+.bank-recall-table-area,
+.journal-table-area {
     display: block;
     overflow: auto;
 }
 
-.bank-recall-table-area.table-area-empty {
+.bank-recall-table-area.table-area-empty,
+.journal-table-area.table-area-empty {
     display: flex;
     overflow: hidden;
 }
