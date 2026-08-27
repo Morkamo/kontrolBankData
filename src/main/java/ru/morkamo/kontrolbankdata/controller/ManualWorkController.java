@@ -49,6 +49,19 @@ public class ManualWorkController {
         return "redirect:/manualwork";
     }
 
+    @PostMapping("/update/{id}")
+    public String update(
+            @PathVariable Integer id,
+            ManualWork manualWork,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodStart,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate periodEnd) {
+
+        manualWork.setId(id);
+        manualWork.setPeriod(formatPeriod(periodStart, periodEnd));
+        manualWorkService.create(manualWork);
+        return "redirect:/manualwork";
+    }
+
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
         manualWorkService.delete(id);

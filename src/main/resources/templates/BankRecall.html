@@ -8,7 +8,12 @@
 </head>
 <body class="page">
 <header class="page-header">
-    <h1 class="page-title">Контроль банковских данных</h1>
+    <div class="header-top">
+        <h1 class="page-title">Контроль банковских данных</h1>
+        <form action="/logout" method="post">
+            <button class="button" type="submit">Выход</button>
+        </form>
+    </div>
     <nav class="section-nav">
         <a class="section-button section-button-active" href="/bankrecall">Отзыв в банк</a>
         <a class="section-button" href="/sedrecall">Отзывы в СЭД</a>
@@ -33,10 +38,18 @@
                 <th>Месяц</th>
                 <th>Год</th>
                 <th>Причина</th>
+                <th>Дата смерти</th>
                 <th>Период</th>
                 <th>Срочность</th>
+                <th>Вид выплаты</th>
+                <th>Сумма отзыва</th>
+                <th>Согласие на отзыв</th>
                 <th>Район</th>
+                <th>ФИО специалиста ОВПиСВ</th>
                 <th>Примечание</th>
+                <th>Отметка об исполнении</th>
+                <th>ФИО специалиста ОВИДиСР</th>
+                <th>Примечание специалиста ОВИДиСР</th>
                 <th></th>
             </tr>
             </thead>
@@ -51,11 +64,45 @@
                 <td th:text="${record.month}"></td>
                 <td th:text="${record.year}"></td>
                 <td th:text="${record.reason}"></td>
+                <td th:text="${record.deathDate}"></td>
                 <td th:text="${record.period}"></td>
                 <td th:text="${record.urgent}"></td>
-                <td th:text="${record.district}"></td>
+                <td th:text="${record.paymentType}"></td>
+                <td th:text="${record.recallAmount}"></td>
+                <td th:text="${record.agreementDate}"></td>
+                <td th:text="${record.district == 0 ? 'ЕЦП' : record.district}"></td>
+                <td th:text="${record.ovpSpecialist}"></td>
                 <td th:text="${record.note}"></td>
+                <td th:text="${record.executionMark}"></td>
+                <td th:text="${record.ovidSpecialist}"></td>
+                <td th:text="${record.ovidNote}"></td>
                 <td>
+                    <button class="button"
+                            type="button"
+                            data-open-modal
+                            th:attr="data-update-url=@{/bankrecall/update/{id}(id=${record.id})},
+                                     data-pension-case-number=${record.pensionCaseNumber},
+                                     data-pensioner-name=${record.pensionerName},
+                                     data-bank=${record.bank},
+                                     data-recall-type=${record.recallType},
+                                     data-package-number=${record.packageNumber},
+                                     data-month=${record.month},
+                                     data-year=${record.year},
+                                     data-reason=${record.reason},
+                                     data-death-date=${record.deathDate},
+                                     data-period=${record.period},
+                                     data-urgent=${record.urgent},
+                                     data-payment-type=${record.paymentType},
+                                     data-recall-amount=${record.recallAmount},
+                                     data-agreement-date=${record.agreementDate},
+                                     data-district=${record.district},
+                                     data-ovp-specialist=${record.ovpSpecialist},
+                                     data-note=${record.note},
+                                     data-execution-mark=${record.executionMark},
+                                     data-ovid-specialist=${record.ovidSpecialist},
+                                     data-ovid-note=${record.ovidNote}">
+                        Изменить
+                    </button>
                     <form class="row-form delete-record-form"
                           th:action="@{/bankrecall/delete/{id}(id=${record.id})}"
                           data-confirm-message="Удалить эту запись?"
@@ -148,7 +195,7 @@
     <div class="modal-content">
         <h2 class="modal-title">Новая запись</h2>
 
-        <form class="modal-form" id="bankRecallForm" action="/bankrecall/create" method="post">
+        <form class="modal-form" id="bankRecallForm" action="/bankrecall/create" method="post" data-create-action="/bankrecall/create">
             <label class="form-field">
                 Номер пенсионного дела
                 <input class="field-input"
@@ -189,6 +236,7 @@
                 Район
                 <select class="field-input" name="district" required>
                     <option value="">Выберите район</option>
+                    <option value="0">ЕЦП</option>
                     <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
                 </select>
             </label>
@@ -236,6 +284,11 @@
             </label>
 
             <label class="form-field">
+                Дата смерти
+                <input class="field-input" type="date" name="deathDate">
+            </label>
+
+            <label class="form-field">
                 Месяц
                 <select class="field-input" name="month" required>
                     <option value="">Выберите месяц</option>
@@ -271,14 +324,55 @@
                 </label>
             </fieldset>
 
+            <label class="form-field">
+                Вид выплаты
+                <input class="field-input" type="text" name="paymentType" maxlength="100">
+            </label>
+
+            <label class="form-field">
+                Сумма отзыва
+                <input class="field-input"
+                       type="text"
+                       name="recallAmount"
+                       data-amount
+                       inputmode="decimal"
+                       pattern="[0-9]+([.][0-9]{1,2})?"
+                       maxlength="15">
+            </label>
+
+            <label class="form-field">
+                Согласие на отзыв
+                <input class="field-input" type="date" name="agreementDate">
+            </label>
+
+            <label class="form-field">
+                ФИО специалиста ОВПиСВ
+                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255">
+            </label>
+
             <label class="form-field form-field-wide">
                 Примечание
                 <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
             </label>
+
+            <label class="form-field">
+                Отметка об исполнении
+                <input class="field-input" type="text" name="executionMark" maxlength="20">
+            </label>
+
+            <label class="form-field">
+                ФИО специалиста ОВИДиСР
+                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255">
+            </label>
+
+            <label class="form-field form-field-wide">
+                Примечание специалиста ОВИДиСР
+                <textarea class="field-input form-textarea" name="ovidNote" maxlength="255"></textarea>
+            </label>
         </form>
 
         <div class="modal-actions">
-            <button class="button button-primary" type="submit" form="bankRecallForm">Добавить</button>
+            <button class="button button-primary" type="submit" form="bankRecallForm">Сохранить</button>
             <button class="button" type="button" data-close-modal>Отмена</button>
         </div>
     </div>

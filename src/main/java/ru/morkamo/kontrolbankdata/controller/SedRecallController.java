@@ -40,6 +40,13 @@ public class SedRecallController {
         return "redirect:/sedrecall";
     }
 
+    @PostMapping("/update/{id}")
+    public String update(@PathVariable Integer id, SedRecall sedRecall) {
+        sedRecall.setId(id);
+        sedRecallService.create(sedRecall);
+        return "redirect:/sedrecall";
+    }
+
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Integer id) {
         sedRecallService.delete(id);

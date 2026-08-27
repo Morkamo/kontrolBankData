@@ -8,7 +8,12 @@
 </head>
 <body class="page">
 <header class="page-header">
-    <h1 class="page-title">Контроль банковских данных</h1>
+    <div class="header-top">
+        <h1 class="page-title">Контроль банковских данных</h1>
+        <form action="/logout" method="post">
+            <button class="button" type="submit">Выход</button>
+        </form>
+    </div>
     <nav class="section-nav">
         <a class="section-button" href="/bankrecall">Отзыв в банк</a>
         <a class="section-button" href="/sedrecall">Отзывы в СЭД</a>
@@ -58,7 +63,7 @@
                 <td th:text="${record.amount}"></td>
                 <td th:text="${record.period}"></td>
                 <td th:text="${record.urgent}"></td>
-                <td th:text="${record.district}"></td>
+                <td th:text="${record.district == 0 ? 'ЕЦП' : record.district}"></td>
                 <td th:text="${record.ovpSpecialist}"></td>
                 <td th:text="${record.note}"></td>
                 <td th:text="${record.executionMark}"></td>
@@ -69,6 +74,31 @@
                 <td th:text="${record.controlResult2}"></td>
                 <td th:text="${record.controlSpecialist2}"></td>
                 <td>
+                    <button class="button"
+                            type="button"
+                            data-open-modal
+                            th:attr="data-update-url=@{/manualwork/update/{id}(id=${record.id})},
+                                     data-pension-case-number=${record.pensionCaseNumber},
+                                     data-pensioner-name=${record.pensionerName},
+                                     data-accounting=${record.accounting},
+                                     data-reason=${record.reason},
+                                     data-payment-type=${record.paymentType},
+                                     data-source=${record.source},
+                                     data-amount=${record.amount},
+                                     data-period=${record.period},
+                                     data-urgent=${record.urgent},
+                                     data-district=${record.district},
+                                     data-ovp-specialist=${record.ovpSpecialist},
+                                     data-note=${record.note},
+                                     data-execution-mark=${record.executionMark},
+                                     data-ovid-specialist=${record.ovidSpecialist},
+                                     data-ovid-note=${record.ovidNote},
+                                     data-control-result1=${record.controlResult1},
+                                     data-control-specialist1=${record.controlSpecialist1},
+                                     data-control-result2=${record.controlResult2},
+                                     data-control-specialist2=${record.controlSpecialist2}">
+                        Изменить
+                    </button>
                     <form class="row-form delete-record-form"
                           th:action="@{/manualwork/delete/{id}(id=${record.id})}"
                           data-confirm-message="Удалить эту запись?"
@@ -112,7 +142,7 @@
     <div class="modal-content">
         <h2 class="modal-title">Новая запись</h2>
 
-        <form class="modal-form" id="manualWorkForm" action="/manualwork/create" method="post">
+        <form class="modal-form" id="manualWorkForm" action="/manualwork/create" method="post" data-create-action="/manualwork/create">
             <label class="form-field">
                 Номер пенсионного дела
                 <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required>
@@ -127,6 +157,7 @@
                 Район
                 <select class="field-input" name="district" required>
                     <option value="">Выберите район</option>
+                    <option value="0">ЕЦП</option>
                     <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
                 </select>
             </label>
@@ -198,10 +229,50 @@
                 Примечание
                 <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
             </label>
+
+            <label class="form-field">
+                ФИО специалиста ОВПиСВ
+                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255">
+            </label>
+
+            <label class="form-field">
+                Отметка об исполнении
+                <input class="field-input" type="text" name="executionMark" maxlength="20">
+            </label>
+
+            <label class="form-field">
+                ФИО специалиста ОВИДиСР
+                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255">
+            </label>
+
+            <label class="form-field form-field-wide">
+                Примечание специалиста ОВИДиСР
+                <textarea class="field-input form-textarea" name="ovidNote" maxlength="200"></textarea>
+            </label>
+
+            <label class="form-field">
+                Результат контроля 1
+                <input class="field-input" type="text" name="controlResult1" maxlength="30">
+            </label>
+
+            <label class="form-field">
+                ФИО осущ. контроль
+                <input class="field-input" type="text" name="controlSpecialist1" data-person-name maxlength="255">
+            </label>
+
+            <label class="form-field">
+                Результат контроля 2
+                <input class="field-input" type="text" name="controlResult2" maxlength="30">
+            </label>
+
+            <label class="form-field">
+                ФИО осущ. контроль 2
+                <input class="field-input" type="text" name="controlSpecialist2" data-person-name maxlength="255">
+            </label>
         </form>
 
         <div class="modal-actions">
-            <button class="button button-primary" type="submit" form="manualWorkForm">Добавить</button>
+            <button class="button button-primary" type="submit" form="manualWorkForm">Сохранить</button>
             <button class="button" type="button" data-close-modal>Отмена</button>
         </div>
     </div>

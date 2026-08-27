@@ -1,5 +1,7 @@
 package ru.morkamo.kontrolbankdata.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,15 +46,39 @@ public class BankRecall {
     @Column(name = "\"Prichina\"", length = 255)
     private String reason;
 
+    @Column(name = "\"Data_death\"", length = 100)
+    private String deathDate;
+
     @Column(name = "\"Period\"", length = 255)
     private String period;
 
     @Column(name = "\"Srochnost\"", length = 4)
     private String urgent;
 
+    @Column(name = "\"Type_pay\"", length = 100)
+    private String paymentType;
+
+    @Column(name = "\"Amount_vozv\"", length = 15)
+    private String recallAmount;
+
+    @Column(name = "\"FIO_SP_ONiVB\"", length = 255)
+    private String ovpSpecialist;
+
     @Column(name = "\"Area\"")
     private Integer district;
 
     @Column(name = "\"Primechanie_ONiVBD\"", length = 255)
     private String note;
+
+    @Column(name = "\"Check_finish\"", length = 20)
+    private String executionMark;
+
+    @Column(name = "\"FIO_SP_OVVBD\"", length = 255)
+    private String ovidSpecialist;
+
+    @Column(name = "\"Primechanie_OVVBD\"", length = 255)
+    private String ovidNote;
+
+    @Column(name = "\"AgreementVozv\"")
+    private LocalDate agreementDate;
 }

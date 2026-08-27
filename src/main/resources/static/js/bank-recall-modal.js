@@ -1,5 +1,6 @@
 const modal = document.querySelector('.modal');
-const openModalButton = document.querySelector('[data-open-modal]');
+const modalTitle = document.querySelector('.modal-title');
+const openModalButtons = document.querySelectorAll('[data-open-modal]');
 const cancelModalButton = document.querySelector('[data-close-modal]');
 const journalForm = document.querySelector('.modal-form');
 const deleteRecordForms = document.querySelectorAll('.delete-record-form');
@@ -12,7 +13,57 @@ function closeModal() {
     modal?.classList.remove('modal-open');
 }
 
-openModalButton?.addEventListener('click', () => modal?.classList.add('modal-open'));
+function toDateInputValue(value) {
+    const match = value?.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+    return match ? `${match[3]}-${match[2]}-${match[1]}` : value || '';
+}
+
+function setField(name, value) {
+    const field = journalForm?.elements[name];
+
+    if (field) {
+        field.value = field.type === 'date' ? toDateInputValue(value) : value || '';
+    }
+}
+
+function openCreateModal() {
+    journalForm?.reset();
+    journalForm?.setAttribute('action', journalForm.dataset.createAction);
+
+    if (modalTitle) {
+        modalTitle.textContent = 'Новая запись';
+    }
+
+    modal?.classList.add('modal-open');
+}
+
+function openEditModal(button) {
+    journalForm?.reset();
+    journalForm?.setAttribute('action', button.dataset.updateUrl);
+
+    Object.entries(button.dataset).forEach(([name, value]) => setField(name, value));
+
+    const periodDates = button.dataset.period?.match(/(\d{2}\.\d{2}\.\d{4})/g) || [];
+    setField('periodStart', toDateInputValue(periodDates[0]));
+    setField('periodEnd', toDateInputValue(periodDates[1]));
+
+    if (modalTitle) {
+        modalTitle.textContent = 'Изменение записи';
+    }
+
+    modal?.classList.add('modal-open');
+}
+
+openModalButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        if (button.dataset.updateUrl) {
+            openEditModal(button);
+        } else {
+            openCreateModal();
+        }
+    });
+});
+
 cancelModalButton?.addEventListener('click', closeModal);
 
 modal?.addEventListener('click', (event) => {
