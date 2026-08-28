@@ -17,45 +17,45 @@ public class SedRecall {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "\"ID\"")
+    @Column(name = "ID")
     private Integer id;
 
-    @Column(name = "\"Number_VD\"", length = 7)
+    @Column(name = "Number_VD", length = 7)
     private String pensionCaseNumber;
 
-    @Column(name = "\"FIO_Recipient\"")
+    @Column(name = "FIO_Recipient")
     private String pensionerName;
 
-    @Column(name = "\"Number_Package\"", length = 10)
+    @Column(name = "Number_Package", length = 10)
     private String packageNumber;
 
-    @Column(name = "\"Month\"")
+    @Column(name = "Month")
     private Integer month;
 
-    @Column(name = "\"Year\"")
+    @Column(name = "Year")
     private Integer year;
 
-    @Column(name = "\"Prichina\"")
+    @Column(name = "Prichina")
     private String reason;
 
-    @Column(name = "\"Srochnost\"", length = 5)
+    @Column(name = "Srochnost", length = 5)
     private String urgent;
 
-    @Column(name = "\"FIO_SP_ONiVB\"")
+    @Column(name = "FIO_SP_ONiVB")
     private String ovpSpecialist;
 
-    @Column(name = "\"Primechanie_ONiVB\"")
+    @Column(name = "Primechanie_ONiVB")
     private String note;
 
-    @Column(name = "\"Ot_Ispolnenie\"", length = 20)
+    @Column(name = "Ot_Ispolnenie", length = 20)
     private String executionMark;
 
-    @Column(name = "\"FIO_OVVBD\"")
+    @Column(name = "FIO_OVVBD")
     private String ovidSpecialist;
 
-    @Column(name = "\"Primechanie_OVVBD\"")
+    @Column(name = "Primechanie_OVVBD")
     private String ovidNote;
 
-    @Column(name = "\"Area\"")
+    @Column(name = "Area")
     private Integer district;
 }

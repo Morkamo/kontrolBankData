@@ -14,6 +14,9 @@ spring:
 
   jpa:
     open-in-view: false
+    database-platform: org.hibernate.community.dialect.MySQLLegacyDialect
     hibernate:
       ddl-auto: validate
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: false

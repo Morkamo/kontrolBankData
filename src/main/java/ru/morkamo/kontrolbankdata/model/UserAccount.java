@@ -16,9 +16,9 @@ public class UserAccount {
     @Id
     private Short id;
 
-    @Column(name = "\"User\"", length = 40, nullable = false)
+    @Column(name = "User", length = 40, nullable = false)
     private String username;
 
-    @Column(name = "\"PWD\"", length = 8)
+    @Column(name = "PWD", length = 8)
     private String password;
 }

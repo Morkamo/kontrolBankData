@@ -26,8 +26,8 @@ public class KontrolBankDataApplication {
         String content = """
                 spring:
                   datasource:
-                    url: jdbc:postgresql://localhost:5432/kontrol
-                    username: postgres
+                    url: jdbc:mysql://localhost:3306/control?useSSL=false&useUnicode=true&characterEncoding=UTF-8
+                    username: root
                     password: CHANGE_ME
                 """;
 
