@@ -11,6 +11,7 @@
     <div class="header-top">
         <h1 class="page-title">Контроль банковских данных</h1>
         <form action="/logout" method="post">
+            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
             <button class="button" type="submit">Выход</button>
         </form>
     </div>
@@ -74,7 +75,7 @@
                 <td th:text="${record.controlResult2}"></td>
                 <td th:text="${record.controlSpecialist2}"></td>
                 <td>
-                    <button class="button"
+                    <button th:if="${canOpenEdit}" class="button"
                             type="button"
                             data-open-modal
                             th:attr="data-update-url=@{/manualwork/update/{id}(id=${record.id})},
@@ -99,10 +100,11 @@
                                      data-control-specialist2=${record.controlSpecialist2}">
                         Изменить
                     </button>
-                    <form class="row-form delete-record-form"
+                    <form th:if="${canDelete}" class="row-form delete-record-form"
                           th:action="@{/manualwork/delete/{id}(id=${record.id})}"
                           data-confirm-message="Удалить эту запись?"
                           method="post">
+                        <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
                         <button class="button" type="submit">Удалить</button>
                     </form>
                 </td>
@@ -142,7 +144,9 @@
     <div class="modal-content">
         <h2 class="modal-title">Новая запись</h2>
 
-        <form class="modal-form" id="manualWorkForm" action="/manualwork/create" method="post" data-create-action="/manualwork/create">
+        <form class="modal-form" id="manualWorkForm" action="/manualwork/create" method="post" data-create-action="/manualwork/create"
+              th:attr="data-can-edit-record=${canEditRecord},data-editable-fields=${editableFields}">
+            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
             <label class="form-field">
                 Номер пенсионного дела
                 <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required>
@@ -237,7 +241,11 @@
 
             <label class="form-field">
                 Отметка об исполнении
-                <input class="field-input" type="text" name="executionMark" maxlength="20">
+                <select class="field-input" name="executionMark" required>
+                    <option value="">Выберите значение</option>
+                    <option value="Да">Да</option>
+                    <option value="Нет">Нет</option>
+                </select>
             </label>
 
             <label class="form-field">

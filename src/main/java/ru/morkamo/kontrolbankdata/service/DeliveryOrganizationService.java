@@ -18,4 +18,8 @@ public class DeliveryOrganizationService {
         return deliveryOrganizationRepository
                 .findAll(Sort.by(Sort.Direction.ASC, "name"));
     }
+
+    public boolean existsByName(String name) {
+        return name != null && deliveryOrganizationRepository.existsByName(name);
+    }
 }

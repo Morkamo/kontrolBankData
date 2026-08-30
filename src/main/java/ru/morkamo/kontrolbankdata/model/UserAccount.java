@@ -21,4 +21,7 @@ public class UserAccount {
 
     @Column(name = "PWD", length = 8)
     private String password;
+
+    @Column(name = "department")
+    private Integer departmentId;
 }

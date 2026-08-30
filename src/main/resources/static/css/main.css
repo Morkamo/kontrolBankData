@@ -285,6 +285,12 @@
     color: #4b5563;
 }
 
+/* Частичный режим редактирования: скрытые сервером/JS поля не должны
+   возвращаться из-за базового display: grid у .form-field. */
+.form-field[hidden] {
+    display: none;
+}
+
 .form-field-wide {
     grid-column: 1 / -1;
 }

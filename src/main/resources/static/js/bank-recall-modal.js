@@ -10,6 +10,39 @@ const amountInputs = document.querySelectorAll('input[data-amount]');
 const periodFieldsets = document.querySelectorAll('.period-fieldset, .period-search-fieldset');
 let modalClickStartedOutside = false;
 
+function editableFieldNames() {
+    return (journalForm?.dataset.editableFields || '')
+        .replace(/[\[\]]/g, '')
+        .split(',')
+        .map((name) => name.trim())
+        .filter(Boolean);
+}
+
+function setModalMode(mode) {
+    if (!journalForm) {
+        return;
+    }
+
+    const fullEdit = journalForm.dataset.canEditRecord === 'true';
+    const editableFields = new Set(editableFieldNames());
+    journalForm.querySelectorAll('.form-field').forEach((group) => {
+        const fields = group.querySelectorAll('[name]');
+        const showGroup = mode !== 'partial'
+            || Array.from(fields).some((field) => editableFields.has(field.dataset.permissionField || field.name));
+
+        group.hidden = !showGroup;
+        fields.forEach((field) => {
+            field.disabled = !showGroup;
+            field.dataset.editField = field.dataset.permissionField || field.name;
+        });
+    });
+
+    journalForm.dataset.mode = mode;
+    if (mode === 'edit' && fullEdit) {
+        journalForm.dataset.mode = 'full-edit';
+    }
+}
+
 function closeModal() {
     modal?.classList.remove('modal-open');
 }
@@ -30,6 +63,7 @@ function setField(name, value) {
 function openCreateModal() {
     journalForm?.reset();
     journalForm?.setAttribute('action', journalForm.dataset.createAction);
+    setModalMode('create');
 
     if (modalTitle) {
         modalTitle.textContent = 'Новая запись';
@@ -41,6 +75,7 @@ function openCreateModal() {
 function openEditModal(button) {
     journalForm?.reset();
     journalForm?.setAttribute('action', button.dataset.updateUrl);
+    setModalMode(journalForm?.dataset.canEditRecord === 'true' ? 'edit' : 'partial');
 
     Object.entries(button.dataset).forEach(([name, value]) => setField(name, value));
 

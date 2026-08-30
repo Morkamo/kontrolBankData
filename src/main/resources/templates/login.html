@@ -9,6 +9,7 @@
 <main class="login-shell">
     <section class="login-card">
         <h1 class="login-title">Вход</h1>
+        <p class="login-error" th:if="${sessionMessage}" th:text="${sessionMessage}"></p>
 
         <form class="login-form" action="/login" method="post">
             <label class="form-field">

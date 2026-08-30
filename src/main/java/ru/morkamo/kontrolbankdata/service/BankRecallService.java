@@ -6,6 +6,8 @@ import ru.morkamo.kontrolbankdata.model.BankRecall;
 import ru.morkamo.kontrolbankdata.repository.BankRecallRepository;
 
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,11 @@ public class BankRecallService {
 
     public void save(BankRecall bankRecall) {
         bankRecallRepository.save(bankRecall);
+    }
+
+    public BankRecall getById(Integer id) {
+        return bankRecallRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Запись не найдена"));
     }
 
     public void delete(Integer id) {

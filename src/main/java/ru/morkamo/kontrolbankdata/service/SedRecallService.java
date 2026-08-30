@@ -6,6 +6,8 @@ import ru.morkamo.kontrolbankdata.model.SedRecall;
 import ru.morkamo.kontrolbankdata.repository.SedRecallRepository;
 
 import java.util.List;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +22,11 @@ public class SedRecallService {
 
     public void save(SedRecall sedRecall) {
         sedRecallRepository.save(sedRecall);
+    }
+
+    public SedRecall getById(Integer id) {
+        return sedRecallRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Запись не найдена"));
     }
 
     public void delete(Integer id) {
