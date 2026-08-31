@@ -5,15 +5,14 @@
     <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
     <script src="/js/bank-recall-modal.js" defer></script>
+    <script src="/js/user-settings.js" defer></script>
+    <script src="/js/admin.js" defer></script>
 </head>
 <body class="page">
 <header class="page-header">
     <div class="header-top">
         <h1 class="page-title">Контроль банковских данных</h1>
-        <form action="/logout" method="post">
-            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
-            <button class="button" type="submit">Выход</button>
-        </form>
+        <div th:replace="~{fragments/user-actions :: userActions(${isAdministrator}, ${databaseLocked})}"></div>
     </div>
     <nav class="section-nav">
         <a class="section-button section-button-active" href="/bankrecall">Отзыв в банк</a>
@@ -23,6 +22,7 @@
 </header>
 
 <main class="main-content">
+    <p class="status-message" th:if="${param.databaseLocked}">Изменение данных временно заблокировано администратором.</p>
     <section class="table-area bank-recall-table-area"
              th:classappend="${#lists.isEmpty(records)} ? ' table-area-empty'">
         <p class="table-placeholder" th:if="${#lists.isEmpty(records)}">Нет данных</p>
@@ -108,7 +108,7 @@
                           th:action="@{/bankrecall/delete/{id}(id=${record.id})}"
                           data-confirm-message="Удалить эту запись?"
                           method="post">
-                        <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button class="button" type="submit">Удалить</button>
                     </form>
                 </td>
@@ -193,13 +193,19 @@
     </div>
 </footer>
 
-<div class="modal">
+<div class="modal" th:classappend="${openRecordModal} ? ' modal-open'" data-journal-modal>
     <div class="modal-content">
-        <h2 class="modal-title">Новая запись</h2>
+        <h2 class="modal-title" th:text="${recordFormEditMode} ? 'Изменение записи' : 'Новая запись'">Новая запись</h2>
 
         <form class="modal-form" id="bankRecallForm" action="/bankrecall/create" method="post" data-create-action="/bankrecall/create"
-              th:attr="data-can-edit-record=${canEditRecord},data-editable-fields=${editableFields}">
-            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
+              th:action="${recordFormAction}"
+              th:attr="data-can-edit-record=${canEditRecord},data-editable-fields=${editableFields},data-initial-edit-mode=${recordFormEditMode}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <p class="status-message form-field-wide" th:if="${recordFormError}" th:text="${recordFormError}" data-record-error></p>
+            <label class="form-field" data-create-only>
+                ID
+                <input class="field-input" type="number" name="id" min="1" step="1" th:value="${formRecord.id}">
+            </label>
             <label class="form-field">
                 Номер пенсионного дела
                 <input class="field-input"
@@ -210,7 +216,8 @@
                        pattern="[0-9]{7}"
                        maxlength="7"
                        title="Введите 7 цифр"
-                       required>
+                       required
+                       th:value="${formRecord.pensionCaseNumber}">
             </label>
 
             <label class="form-field">
@@ -222,16 +229,18 @@
                        pattern="[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s'-]{1,199}"
                        maxlength="200"
                        title="Введите ФИО буквами, можно использовать пробелы и дефисы"
-                       required>
+                       required
+                       th:value="${formRecord.pensionerName}">
             </label>
 
             <label class="form-field">
                 Наименование банка
                 <select class="field-input" name="bank" required>
-                    <option value="" selected disabled>Выберите банк</option>
+                    <option value="" disabled>Выберите банк</option>
                     <option th:each="bank : ${banks}"
                             th:value="${bank.name}"
-                            th:text="${bank.name}">
+                            th:text="${bank.name}"
+                            th:selected="${bank.name == formRecord.bank}">
                     </option>
                 </select>
             </label>
@@ -240,37 +249,38 @@
                 Район
                 <select class="field-input" name="district" required>
                     <option value="">Выберите район</option>
-                    <option value="0">ЕЦП</option>
-                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
+                    <option value="0" th:selected="${formRecord.district == 0}">ЕЦП</option>
+                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}"
+                            th:text="${area}" th:selected="${area == formRecord.district}"></option>
                 </select>
             </label>
 
             <label class="form-field">
                 Срочность оформления
                 <select class="field-input" name="urgent" required>
-                    <option value="" selected disabled>Выберите срочность</option>
-                    <option>Да</option>
-                    <option>Нет</option>
+                    <option value="" disabled>Выберите срочность</option>
+                    <option th:selected="${formRecord.urgent == 'Да'}">Да</option>
+                    <option th:selected="${formRecord.urgent == 'Нет'}">Нет</option>
                 </select>
             </label>
 
             <label class="form-field">
                 Вид отзыва
                 <select class="field-input" name="recallType" required>
-                    <option value="" selected disabled>Выберите вид отзыва</option>
-                    <option>Полный</option>
-                    <option>Частичный</option>
+                    <option value="" disabled>Выберите вид отзыва</option>
+                    <option th:selected="${formRecord.recallType == 'Полный'}">Полный</option>
+                    <option th:selected="${formRecord.recallType == 'Частичный'}">Частичный</option>
                 </select>
             </label>
 
             <label class="form-field">
                 Причина
                 <select class="field-input" name="reason" required>
-                    <option value="" selected disabled>Выберите причину</option>
-                    <option>Умер</option>
-                    <option>Выбыл</option>
-                    <option>Утрата права</option>
-                    <option>Смена доставочной организации</option>
+                    <option value="" disabled>Выберите причину</option>
+                    <option th:selected="${formRecord.reason == 'Умер'}">Умер</option>
+                    <option th:selected="${formRecord.reason == 'Выбыл'}">Выбыл</option>
+                    <option th:selected="${formRecord.reason == 'Утрата права'}">Утрата права</option>
+                    <option th:selected="${formRecord.reason == 'Смена доставочной организации'}">Смена доставочной организации</option>
                 </select>
             </label>
 
@@ -284,53 +294,54 @@
                        pattern="[0-9]{1,10}"
                        maxlength="10"
                        title="Введите до 10 цифр"
-                       required>
+                       required
+                       th:value="${formRecord.packageNumber}">
             </label>
 
             <label class="form-field">
                 Дата смерти
-                <input class="field-input" type="date" name="deathDate">
+                <input class="field-input" type="date" name="deathDate" th:value="${formRecord.deathDate}">
             </label>
 
             <label class="form-field">
                 Месяц
                 <select class="field-input" name="month" required>
                     <option value="">Выберите месяц</option>
-                    <option value="1">Январь</option>
-                    <option value="2">Февраль</option>
-                    <option value="3">Март</option>
-                    <option value="4">Апрель</option>
-                    <option value="5">Май</option>
-                    <option value="6">Июнь</option>
-                    <option value="7">Июль</option>
-                    <option value="8">Август</option>
-                    <option value="9">Сентябрь</option>
-                    <option value="10">Октябрь</option>
-                    <option value="11">Ноябрь</option>
-                    <option value="12">Декабрь</option>
+                    <option value="1" th:selected="${formRecord.month == 1}">Январь</option>
+                    <option value="2" th:selected="${formRecord.month == 2}">Февраль</option>
+                    <option value="3" th:selected="${formRecord.month == 3}">Март</option>
+                    <option value="4" th:selected="${formRecord.month == 4}">Апрель</option>
+                    <option value="5" th:selected="${formRecord.month == 5}">Май</option>
+                    <option value="6" th:selected="${formRecord.month == 6}">Июнь</option>
+                    <option value="7" th:selected="${formRecord.month == 7}">Июль</option>
+                    <option value="8" th:selected="${formRecord.month == 8}">Август</option>
+                    <option value="9" th:selected="${formRecord.month == 9}">Сентябрь</option>
+                    <option value="10" th:selected="${formRecord.month == 10}">Октябрь</option>
+                    <option value="11" th:selected="${formRecord.month == 11}">Ноябрь</option>
+                    <option value="12" th:selected="${formRecord.month == 12}">Декабрь</option>
                 </select>
             </label>
 
             <label class="form-field">
                 Год
-                <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" required>
+                <input class="field-input" type="number" min="1900" max="2100" step="1" name="year" required th:value="${formRecord.year}">
             </label>
 
             <fieldset class="form-field form-field-wide period-fieldset">
                 <legend>Период</legend>
                 <label class="period-inline-label">
                     С
-                    <input class="field-input" type="date" name="periodStart" required>
+                    <input class="field-input" type="date" name="periodStart" required th:value="${formPeriodStart}">
                 </label>
                 <label class="period-inline-label">
                     ПО
-                    <input class="field-input" type="date" name="periodEnd" required>
+                    <input class="field-input" type="date" name="periodEnd" required th:value="${formPeriodEnd}">
                 </label>
             </fieldset>
 
             <label class="form-field">
                 Вид выплаты
-                <input class="field-input" type="text" name="paymentType" maxlength="100">
+                <input class="field-input" type="text" name="paymentType" maxlength="100" th:value="${formRecord.paymentType}">
             </label>
 
             <label class="form-field">
@@ -341,41 +352,42 @@
                        data-amount
                        inputmode="decimal"
                        pattern="[0-9]+([.][0-9]{1,2})?"
-                       maxlength="15">
+                       maxlength="15"
+                       th:value="${formRecord.recallAmount}">
             </label>
 
             <label class="form-field">
                 Согласие на отзыв
-                <input class="field-input" type="date" name="agreementDate">
+                <input class="field-input" type="date" name="agreementDate" th:value="${formRecord.agreementDate}">
             </label>
 
             <label class="form-field">
                 ФИО специалиста ОВПиСВ
-                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255" th:value="${formRecord.ovpSpecialist}">
             </label>
 
             <label class="form-field form-field-wide">
                 Примечание
-                <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
+                <textarea class="field-input form-textarea" name="note" maxlength="255" th:text="${formRecord.note}"></textarea>
             </label>
 
             <label class="form-field">
                 Отметка об исполнении
                 <select class="field-input" name="executionMark" required>
                     <option value="">Выберите значение</option>
-                    <option value="Да">Да</option>
-                    <option value="Нет">Нет</option>
+                    <option value="Да" th:selected="${formRecord.executionMark == 'Да'}">Да</option>
+                    <option value="Нет" th:selected="${formRecord.executionMark == 'Нет'}">Нет</option>
                 </select>
             </label>
 
             <label class="form-field">
                 ФИО специалиста ОВИДиСР
-                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255" th:value="${formRecord.ovidSpecialist}">
             </label>
 
             <label class="form-field form-field-wide">
                 Примечание специалиста ОВИДиСР
-                <textarea class="field-input form-textarea" name="ovidNote" maxlength="255"></textarea>
+                <textarea class="field-input form-textarea" name="ovidNote" maxlength="255" th:text="${formRecord.ovidNote}"></textarea>
             </label>
         </form>
 

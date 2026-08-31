@@ -1,13 +1,14 @@
-const modal = document.querySelector('.modal');
-const modalTitle = document.querySelector('.modal-title');
+const modal = document.querySelector('[data-journal-modal]');
+const modalTitle = modal?.querySelector('.modal-title');
 const openModalButtons = document.querySelectorAll('[data-open-modal]');
-const cancelModalButton = document.querySelector('[data-close-modal]');
+const cancelModalButton = modal?.querySelector('[data-close-modal]');
 const journalForm = document.querySelector('.modal-form');
 const deleteRecordForms = document.querySelectorAll('.delete-record-form');
 const numericInputs = document.querySelectorAll('input[data-numeric]');
 const nameInputs = document.querySelectorAll('input[data-person-name]');
 const amountInputs = document.querySelectorAll('input[data-amount]');
 const periodFieldsets = document.querySelectorAll('.period-fieldset, .period-search-fieldset');
+const recordFormError = document.querySelector('[data-record-error]');
 let modalClickStartedOutside = false;
 
 function editableFieldNames() {
@@ -26,8 +27,9 @@ function setModalMode(mode) {
     const fullEdit = journalForm.dataset.canEditRecord === 'true';
     const editableFields = new Set(editableFieldNames());
     journalForm.querySelectorAll('.form-field').forEach((group) => {
+        const createOnly = group.hasAttribute('data-create-only');
         const fields = group.querySelectorAll('[name]');
-        const showGroup = mode !== 'partial'
+        const showGroup = createOnly ? mode === 'create' : mode !== 'partial'
             || Array.from(fields).some((field) => editableFields.has(field.dataset.permissionField || field.name));
 
         group.hidden = !showGroup;
@@ -41,6 +43,12 @@ function setModalMode(mode) {
     if (mode === 'edit' && fullEdit) {
         journalForm.dataset.mode = 'full-edit';
     }
+}
+
+if (modal?.classList.contains('modal-open')) {
+    const editMode = journalForm?.dataset.initialEditMode === 'true';
+    setModalMode(editMode && journalForm?.dataset.canEditRecord !== 'true' ? 'partial'
+        : editMode ? 'edit' : 'create');
 }
 
 function closeModal() {
@@ -62,6 +70,7 @@ function setField(name, value) {
 
 function openCreateModal() {
     journalForm?.reset();
+    recordFormError?.setAttribute('hidden', '');
     journalForm?.setAttribute('action', journalForm.dataset.createAction);
     setModalMode('create');
 
@@ -74,6 +83,7 @@ function openCreateModal() {
 
 function openEditModal(button) {
     journalForm?.reset();
+    recordFormError?.setAttribute('hidden', '');
     journalForm?.setAttribute('action', button.dataset.updateUrl);
     setModalMode(journalForm?.dataset.canEditRecord === 'true' ? 'edit' : 'partial');
 

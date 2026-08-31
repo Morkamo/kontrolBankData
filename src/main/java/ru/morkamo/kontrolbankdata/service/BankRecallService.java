@@ -29,6 +29,10 @@ public class BankRecallService {
         bankRecallRepository.save(bankRecall);
     }
 
+    public boolean existsById(Integer id) {
+        return id != null && bankRecallRepository.existsById(id);
+    }
+
     public BankRecall getById(Integer id) {
         return bankRecallRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Запись не найдена"));

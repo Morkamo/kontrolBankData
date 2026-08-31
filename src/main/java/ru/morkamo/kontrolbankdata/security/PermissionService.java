@@ -1,6 +1,5 @@
 package ru.morkamo.kontrolbankdata.security;
 
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -13,24 +12,20 @@ public class PermissionService {
             "ovidSpecialist",
             "ovidNote",
             "executionMark");
-    private static final Map<JournalType, Set<String>> LIMITED_DEPARTMENT_FIELDS = Map.of(
-            JournalType.BANK, SPECIALIST_FIELDS,
-            JournalType.SED, SPECIALIST_FIELDS,
-            JournalType.MANUAL, SPECIALIST_FIELDS);
-
-    private static final Map<JournalType, Set<String>> CONTROL_FIELDS = Map.of(
-            JournalType.BANK, SPECIALIST_FIELDS,
-            JournalType.SED, SPECIALIST_FIELDS,
-            JournalType.MANUAL, Set.of(
-                    "ovidSpecialist",
-                    "ovidNote",
-                    "controlResult1",
-                    "controlSpecialist1",
-                    "controlResult2",
-                    "controlSpecialist2"));
+    private static final Set<String> MANUAL_CONTROL_FIELDS = Set.of(
+            "ovidSpecialist",
+            "ovidNote",
+            "controlResult1",
+            "controlSpecialist1",
+            "controlResult2",
+            "controlSpecialist2");
 
     public boolean canDeleteRecords(Integer departmentId) {
-        return isControl(departmentId);
+        return isControl(departmentId) || isAdministrator(departmentId);
+    }
+
+    public boolean isAdministrator(Integer departmentId) {
+        return departmentId != null && departmentId == DepartmentIds.ADMINISTRATOR;
     }
 
     public boolean canEditAnyRecord(Integer departmentId) {
@@ -38,19 +33,15 @@ public class PermissionService {
     }
 
     public boolean canEditField(Integer departmentId, JournalType journal, String field) {
-        if (departmentId == null || journal == null || field == null) {
-            return false;
-        }
-
-        if (isControl(departmentId)) {
-            return CONTROL_FIELDS.getOrDefault(journal, Set.of()).contains(field);
-        }
-
-        return limitedDepartmentFields(departmentId, journal).contains(field);
+        return field != null && editableFields(departmentId, journal).contains(field);
     }
 
     public boolean canEditSomeFields(Integer departmentId, JournalType journal) {
         return !editableFields(departmentId, journal).isEmpty();
+    }
+
+    public boolean canOpenEdit(Integer departmentId, JournalType journal) {
+        return canEditAnyRecord(departmentId) || canEditSomeFields(departmentId, journal);
     }
 
     public Set<String> editableFields(Integer departmentId, JournalType journal) {
@@ -58,38 +49,22 @@ public class PermissionService {
             return Set.of();
         }
 
-        if (isControl(departmentId)) {
-            return CONTROL_FIELDS.getOrDefault(journal, Set.of());
-        }
-
-        Set<String> limitedDepartmentFields = limitedDepartmentFields(departmentId, journal);
-        if (!limitedDepartmentFields.isEmpty()) {
-            return limitedDepartmentFields;
-        }
-
-        return Set.of();
-    }
-
-    private Set<String> limitedDepartmentFields(Integer departmentId, JournalType journal) {
-        if (departmentId == null || journal == null || !isLimitedDepartment(departmentId)) {
-            return Set.of();
+        if (isControl(departmentId) || isAdministrator(departmentId)) {
+            return journal == JournalType.MANUAL ? MANUAL_CONTROL_FIELDS : SPECIALIST_FIELDS;
         }
 
         if (departmentId == DepartmentIds.DB_MANAGEMENT) {
             return DB_MANAGEMENT_FIELDS;
         }
 
-        return LIMITED_DEPARTMENT_FIELDS.getOrDefault(journal, Set.of());
+        return (isBilling(departmentId) || isAdministrator(departmentId)) ? SPECIALIST_FIELDS : Set.of();
     }
 
     private boolean isControl(Integer departmentId) {
         return departmentId != null && DepartmentIds.CONTROL == departmentId;
     }
 
-    private boolean isLimitedDepartment(Integer departmentId) {
-        return departmentId != null
-                && (departmentId == DepartmentIds.DB_MANAGEMENT
-                || departmentId == DepartmentIds.BILLINGS_1
-                || departmentId == DepartmentIds.BILLINGS_2);
+    private boolean isBilling(Integer departmentId) {
+        return departmentId == DepartmentIds.BILLINGS_1 || departmentId == DepartmentIds.BILLINGS_2;
     }
 }

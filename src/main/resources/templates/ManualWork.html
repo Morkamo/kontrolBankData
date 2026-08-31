@@ -5,15 +5,14 @@
     <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
     <script src="/js/bank-recall-modal.js" defer></script>
+    <script src="/js/user-settings.js" defer></script>
+    <script src="/js/admin.js" defer></script>
 </head>
 <body class="page">
 <header class="page-header">
     <div class="header-top">
         <h1 class="page-title">Контроль банковских данных</h1>
-        <form action="/logout" method="post">
-            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
-            <button class="button" type="submit">Выход</button>
-        </form>
+        <div th:replace="~{fragments/user-actions :: userActions(${isAdministrator}, ${databaseLocked})}"></div>
     </div>
     <nav class="section-nav">
         <a class="section-button" href="/bankrecall">Отзыв в банк</a>
@@ -23,6 +22,7 @@
 </header>
 
 <main class="main-content">
+    <p class="status-message" th:if="${param.databaseLocked}">Изменение данных временно заблокировано администратором.</p>
     <section class="table-area journal-table-area" th:classappend="${#lists.isEmpty(records)} ? ' table-area-empty'">
         <p class="table-placeholder" th:if="${#lists.isEmpty(records)}">Нет данных</p>
 
@@ -104,7 +104,7 @@
                           th:action="@{/manualwork/delete/{id}(id=${record.id})}"
                           data-confirm-message="Удалить эту запись?"
                           method="post">
-                        <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
                         <button class="button" type="submit">Удалить</button>
                     </form>
                 </td>
@@ -140,29 +140,39 @@
     </div>
 </footer>
 
-<div class="modal">
+<div class="modal" th:classappend="${openRecordModal} ? ' modal-open'" data-journal-modal>
     <div class="modal-content">
-        <h2 class="modal-title">Новая запись</h2>
+        <h2 class="modal-title" th:text="${recordFormEditMode} ? 'Изменение записи' : 'Новая запись'">Новая запись</h2>
 
         <form class="modal-form" id="manualWorkForm" action="/manualwork/create" method="post" data-create-action="/manualwork/create"
-              th:attr="data-can-edit-record=${canEditRecord},data-editable-fields=${editableFields}">
-            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
+              th:action="${recordFormAction}"
+              th:attr="data-can-edit-record=${canEditRecord},data-editable-fields=${editableFields},data-initial-edit-mode=${recordFormEditMode}">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <p class="status-message form-field-wide" th:if="${recordFormError}" th:text="${recordFormError}" data-record-error></p>
+            <label class="form-field" data-create-only>
+                ID
+                <input class="field-input" type="number" name="id" min="1" step="1" th:value="${formRecord.id}">
+            </label>
             <label class="form-field">
                 Номер пенсионного дела
-                <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric" pattern="[0-9]{1,10}" maxlength="10" required>
+                <input class="field-input" type="text" name="pensionCaseNumber" data-numeric inputmode="numeric"
+                       pattern="[0-9]{1,10}" maxlength="10" required th:value="${formRecord.pensionCaseNumber}">
             </label>
 
             <label class="form-field">
                 ФИО пенсионера
-                <input class="field-input" type="text" name="pensionerName" data-person-name pattern="[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s'-]{1,254}" maxlength="255" required>
+                <input class="field-input" type="text" name="pensionerName" data-person-name
+                       pattern="[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё\s'-]{1,254}" maxlength="255" required
+                       th:value="${formRecord.pensionerName}">
             </label>
 
             <label class="form-field">
                 Район
                 <select class="field-input" name="district" required>
                     <option value="">Выберите район</option>
-                    <option value="0">ЕЦП</option>
-                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}" th:text="${area}"></option>
+                    <option value="0" th:selected="${formRecord.district == 0}">ЕЦП</option>
+                    <option th:each="area : ${#numbers.sequence(1, 22)}" th:value="${area}"
+                            th:text="${area}" th:selected="${area == formRecord.district}"></option>
                 </select>
             </label>
 
@@ -170,8 +180,8 @@
                 Срочность оформления
                 <select class="field-input" name="urgent" required>
                     <option value="">Выберите срочность</option>
-                    <option>Да</option>
-                    <option>Нет</option>
+                    <option th:selected="${formRecord.urgent == 'Да'}">Да</option>
+                    <option th:selected="${formRecord.urgent == 'Нет'}">Нет</option>
                 </select>
             </label>
 
@@ -179,8 +189,8 @@
                 Учет в
                 <select class="field-input" name="accounting" required>
                     <option value="">Выберите учет</option>
-                    <option>Текущий</option>
-                    <option>Предыдущий</option>
+                    <option th:selected="${formRecord.accounting == 'Текущий'}">Текущий</option>
+                    <option th:selected="${formRecord.accounting == 'Предыдущий'}">Предыдущий</option>
                 </select>
             </label>
 
@@ -188,21 +198,21 @@
                 Причина оформления р/в
                 <select class="field-input" name="reason" required>
                     <option value="">Выберите причину</option>
-                    <option>возобновление из приостановленных</option>
-                    <option>возобновление после приостановления доставочного документа</option>
-                    <option>корректировка</option>
-                    <option>оформление</option>
+                    <option th:selected="${formRecord.reason == 'возобновление из приостановленных'}">возобновление из приостановленных</option>
+                    <option th:selected="${formRecord.reason == 'возобновление после приостановления доставочного документа'}">возобновление после приостановления доставочного документа</option>
+                    <option th:selected="${formRecord.reason == 'корректировка'}">корректировка</option>
+                    <option th:selected="${formRecord.reason == 'оформление'}">оформление</option>
                 </select>
             </label>
 
             <label class="form-field">
                 Вид выплаты
-                <input class="field-input" type="text" name="paymentType" maxlength="20" required>
+                <input class="field-input" type="text" name="paymentType" maxlength="20" required th:value="${formRecord.paymentType}">
             </label>
 
             <label class="form-field">
                 Источники
-                <input class="field-input" type="text" name="source" maxlength="20">
+                <input class="field-input" type="text" name="source" maxlength="20" th:value="${formRecord.source}">
             </label>
 
             <label class="form-field">
@@ -214,68 +224,69 @@
                        inputmode="decimal"
                        pattern="[0-9]+([.][0-9]{1,2})?"
                        maxlength="20"
-                       title="Введите сумму числом, например 12000.50">
+                       title="Введите сумму числом, например 12000.50"
+                       th:value="${formRecord.amount}">
             </label>
 
             <fieldset class="form-field form-field-wide period-fieldset">
                 <legend>Период р/в</legend>
                 <label class="period-inline-label">
                     С
-                    <input class="field-input" type="date" name="periodStart" required>
+                    <input class="field-input" type="date" name="periodStart" required th:value="${formPeriodStart}">
                 </label>
                 <label class="period-inline-label">
                     ПО
-                    <input class="field-input" type="date" name="periodEnd" required>
+                    <input class="field-input" type="date" name="periodEnd" required th:value="${formPeriodEnd}">
                 </label>
             </fieldset>
 
             <label class="form-field form-field-wide">
                 Примечание
-                <textarea class="field-input form-textarea" name="note" maxlength="255"></textarea>
+                <textarea class="field-input form-textarea" name="note" maxlength="255" th:text="${formRecord.note}"></textarea>
             </label>
 
             <label class="form-field">
                 ФИО специалиста ОВПиСВ
-                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="ovpSpecialist" data-person-name maxlength="255" th:value="${formRecord.ovpSpecialist}">
             </label>
 
             <label class="form-field">
                 Отметка об исполнении
                 <select class="field-input" name="executionMark" required>
                     <option value="">Выберите значение</option>
-                    <option value="Да">Да</option>
-                    <option value="Нет">Нет</option>
+                    <option value="Да" th:selected="${formRecord.executionMark == 'Да'}">Да</option>
+                    <option value="Нет" th:selected="${formRecord.executionMark == 'Нет'}">Нет</option>
                 </select>
             </label>
 
             <label class="form-field">
                 ФИО специалиста ОВИДиСР
-                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="ovidSpecialist" data-person-name maxlength="255" th:value="${formRecord.ovidSpecialist}">
             </label>
 
             <label class="form-field form-field-wide">
                 Примечание специалиста ОВИДиСР
-                <textarea class="field-input form-textarea" name="ovidNote" maxlength="200"></textarea>
+                <textarea class="field-input form-textarea" name="ovidNote" maxlength="200" th:text="${formRecord.ovidNote}"></textarea>
             </label>
 
             <label class="form-field">
                 Результат контроля 1
-                <input class="field-input" type="text" name="controlResult1" maxlength="30">
+                <input class="field-input" type="text" name="controlResult1" maxlength="30" th:value="${formRecord.controlResult1}">
             </label>
 
             <label class="form-field">
                 ФИО осущ. контроль
-                <input class="field-input" type="text" name="controlSpecialist1" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="controlSpecialist1" data-person-name maxlength="255" th:value="${formRecord.controlSpecialist1}">
             </label>
 
             <label class="form-field">
                 Результат контроля 2
-                <input class="field-input" type="text" name="controlResult2" maxlength="30">
+                <input class="field-input" type="text" name="controlResult2" maxlength="30" th:value="${formRecord.controlResult2}">
             </label>
 
             <label class="form-field">
                 ФИО осущ. контроль 2
-                <input class="field-input" type="text" name="controlSpecialist2" data-person-name maxlength="255">
+                <input class="field-input" type="text" name="controlSpecialist2" data-person-name maxlength="255" th:value="${formRecord.controlSpecialist2}">
             </label>
         </form>
 

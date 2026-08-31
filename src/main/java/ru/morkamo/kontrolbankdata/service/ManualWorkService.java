@@ -24,6 +24,10 @@ public class ManualWorkService {
         manualWorkRepository.save(manualWork);
     }
 
+    public boolean existsById(Integer id) {
+        return id != null && manualWorkRepository.existsById(id);
+    }
+
     public ManualWork getById(Integer id) {
         return manualWorkRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Запись не найдена"));

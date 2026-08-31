@@ -2,7 +2,12 @@
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 .page {
+    --accessibility-scale: 1.2;
     min-height: 100vh;
     margin: 0;
     padding-bottom: 92px;
@@ -58,6 +63,113 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
+}
+
+.header-user-area {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.settings-menu {
+    position: relative;
+}
+
+.settings-dropdown {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 6px);
+    right: 0;
+    width: 245px;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #c8ced6;
+    border-radius: 4px;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+}
+
+.settings-dropdown label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 4px;
+    cursor: pointer;
+}
+
+.accessibility-scale-control {
+    display: grid;
+    gap: 8px;
+    padding: 8px 4px 4px;
+}
+
+.accessibility-scale-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.accessibility-scale-control input {
+    width: 100%;
+}
+
+.button.admin-open-button,
+.button.admin-confirm-button {
+    color: #ffffff;
+    background: #c20404;
+    border-color: #c20404;
+}
+
+.admin-modal-content {
+    width: min(430px, 100%);
+    border: 2px solid #c20404;
+}
+
+.admin-modal-title {
+    color: #c20404;
+    text-align: center;
+}
+
+.admin-options {
+    display: grid;
+    justify-items: center;
+    gap: 12px;
+}
+
+.button.admin-option-button {
+    width: min(300px, 100%);
+    min-height: 42px;
+    background: #ffae00;
+    border-color: #ffae00;
+}
+
+.admin-option-selected {
+    outline: 3px solid #c20404;
+    outline-offset: 2px;
+}
+
+.admin-confirm-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.status-message {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    color: #7f1d1d;
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    border-radius: 4px;
+}
+
+.user-table {
+    min-width: 1800px;
+}
+
+.user-management-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 12px;
 }
 
 .page-title {
@@ -246,6 +358,7 @@
 
 .modal {
     position: fixed;
+    z-index: 100;
     inset: 0;
     display: none;
     align-items: center;
@@ -323,6 +436,120 @@
     justify-content: flex-end;
     gap: 8px;
     margin-top: 20px;
+}
+
+.theme-dark.page {
+    color: #f3f4f6;
+    background: #15181d;
+}
+
+.theme-dark .page-header,
+.theme-dark .control-panel,
+.theme-dark .table-area,
+.theme-dark .data-table,
+.theme-dark .modal-content,
+.theme-dark .login-card,
+.theme-dark .settings-dropdown {
+    color: #f3f4f6;
+    background: #20242b;
+    border-color: #454b55;
+}
+
+.theme-dark .data-table th {
+    background: #303640;
+}
+
+.theme-dark .data-table th,
+.theme-dark .data-table td {
+    border-color: #454b55;
+}
+
+.theme-dark .data-table tbody tr:hover td {
+    background: #2a3038;
+}
+
+.theme-dark .field,
+.theme-dark .form-field,
+.theme-dark .table-placeholder {
+    color: #cbd5e1;
+}
+
+.theme-dark .field-input,
+.theme-dark .button,
+.theme-dark .section-button {
+    color: #f3f4f6;
+    background: #292e36;
+    border-color: #59616d;
+}
+
+.theme-dark .section-button-active,
+.theme-dark .button-primary {
+    background: #2f6fed;
+    border-color: #2f6fed;
+}
+
+.theme-dark .admin-open-button,
+.theme-dark .admin-confirm-button {
+    background: #c20404;
+    border-color: #c20404;
+}
+
+.theme-dark .admin-modal-content {
+    border-color: #c20404;
+}
+
+.theme-dark .admin-option-button {
+    color: #222;
+    background: #ffae00;
+    border-color: #ffae00;
+}
+
+.accessibility-large {
+    font-size: calc(16px * var(--accessibility-scale));
+}
+
+.accessibility-large .page-title {
+    font-size: calc(26px * var(--accessibility-scale));
+}
+
+.accessibility-large .login-title,
+.accessibility-large .modal-title {
+    font-size: calc(22px * var(--accessibility-scale));
+}
+
+.accessibility-large .button,
+.accessibility-large .section-button {
+    min-height: calc(34px * var(--accessibility-scale));
+    padding: 0 calc(14px * var(--accessibility-scale));
+    font-size: calc(16px * var(--accessibility-scale));
+}
+
+.accessibility-large .field,
+.accessibility-large .form-field,
+.accessibility-large .data-table,
+.accessibility-large .settings-dropdown {
+    font-size: calc(13px * var(--accessibility-scale));
+}
+
+.accessibility-large .field-input {
+    height: calc(32px * var(--accessibility-scale));
+    padding: 0 calc(8px * var(--accessibility-scale));
+    font-size: calc(16px * var(--accessibility-scale));
+}
+
+.accessibility-large textarea.field-input {
+    min-height: calc(80px * var(--accessibility-scale));
+    padding-top: calc(8px * var(--accessibility-scale));
+}
+
+.accessibility-large .data-table th,
+.accessibility-large .data-table td {
+    padding: calc(10px * var(--accessibility-scale));
+}
+
+.accessibility-large .modal-form,
+.accessibility-large .admin-options {
+    gap: calc(12px * var(--accessibility-scale));
 }
 
 @media (max-width: 760px) {

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<body>
+<div class="header-user-area" th:fragment="userActions(isAdministrator, databaseLocked)">
+    <button th:if="${isAdministrator}" class="button admin-open-button" type="button" data-admin-open>
+        Администрирование
+    </button>
+
+    <div class="settings-menu">
+        <button class="button" type="button" data-settings-toggle aria-expanded="false">Настройки</button>
+        <div class="settings-dropdown" data-settings-dropdown hidden>
+            <label><input type="checkbox" data-theme-toggle> Темная тема</label>
+            <label><input type="checkbox" data-accessibility-toggle> Режим для слабовидящих</label>
+            <div class="accessibility-scale-control" data-accessibility-scale-control hidden>
+                <div class="accessibility-scale-header">
+                    <span>Масштаб интерфейса</span>
+                    <output data-accessibility-scale-output>120%</output>
+                </div>
+                <input type="range" min="100" max="150" step="5" value="120" data-accessibility-scale>
+            </div>
+        </div>
+    </div>
+
+    <form class="logout-form" action="/logout" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <button class="button" type="submit">Выход</button>
+    </form>
+
+    <div th:if="${isAdministrator}" class="modal admin-modal" data-admin-modal>
+        <div class="modal-content admin-modal-content">
+            <h2 class="modal-title admin-modal-title">Администрирование</h2>
+            <div class="admin-options">
+                <button class="button admin-option-button" type="button" data-lock-choice
+                        th:text="${databaseLocked} ? 'Разблокировать базу данных' : 'Заблокировать базу данных'">
+                </button>
+                <a class="button admin-option-button" href="/admin/users">Управление пользователями</a>
+            </div>
+            <form action="/admin/database-lock" method="post" data-database-lock-form
+                  th:attr="data-confirm-message=${databaseLocked} ? 'Вы действительно хотите разблокировать изменения данных?' : 'Вы действительно хотите заблокировать изменения данных?'">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                <input type="hidden" name="locked" th:value="${!databaseLocked}">
+                <div class="modal-actions">
+                    <button class="button admin-confirm-button" type="submit" disabled>Подтвердить</button>
+                    <button class="button" type="button" data-admin-close>Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

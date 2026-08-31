@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <title>Контроль банковских данных</title>
     <link rel="stylesheet" href="/css/main.css">
+    <script src="/js/user-settings.js" defer></script>
+    <script src="/js/admin.js" defer></script>
 </head>
 <body class="page">
 <header class="page-header">
     <div class="header-top">
         <h1 class="page-title">Контроль банковских данных</h1>
-        <form action="/logout" method="post">
-            <input type="hidden" name="_csrf" th:value="${session.csrfToken}">
-            <button class="button" type="submit">Выход</button>
-        </form>
+        <div th:replace="~{fragments/user-actions :: userActions(${isAdministrator}, ${databaseLocked})}"></div>
     </div>
     <nav class="section-nav">
         <a class="section-button" href="/bankrecall">Отзыв в банк</a>
@@ -22,6 +21,7 @@
 </header>
 
 <main class="main-content">
+    <p class="status-message" th:if="${param.databaseLocked}">Изменение данных временно заблокировано администратором.</p>
     <section class="table-area">
         <p class="table-placeholder">Выберите журнал для работы</p>
     </section>

@@ -24,6 +24,10 @@ public class SedRecallService {
         sedRecallRepository.save(sedRecall);
     }
 
+    public boolean existsById(Integer id) {
+        return id != null && sedRecallRepository.existsById(id);
+    }
+
     public SedRecall getById(Integer id) {
         return sedRecallRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Запись не найдена"));
